@@ -17,10 +17,16 @@ To prepare your environment for the Selenium server:
 
 Follow these steps to get the server running:
 
+## Windows
 1. Run `start-selenium.bat` by double-clicking on it or through the command line.
+2. Wait for the server to fully start up.
+3. Access the server for testing at `http://localhost:<port>/wd/hub`.
+
+## Linux or MacOS
+1. Run `start-selenium.sh` by double-clicking on it or through the command line.
 2. Wait for the server to fully start up.
 3. Access the server for testing at `http://localhost:<port>/wd/hub`.
 
 # Stopping the Selenium Server
 
-To stop the server, close the terminal window in which it's running. Alternatively, press `Ctrl+C` in the terminal and confirm the termination by typing `Y` when prompted with "Terminate batch job (Y/N)?", then press Enter.
+To stop the server, close the terminal window in which it's running. Alternatively, you can stop it by pressing `Ctrl+C` within the terminal. For Windows users, you'll need to confirm termination by typing `Y` and hitting Enter when you see the prompt "Terminate batch job (Y/N)?".
