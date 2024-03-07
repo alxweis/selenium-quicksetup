@@ -1,0 +1,3 @@
+selenium-manager = true
+port = 4445
+max-sessions = 3
