@@ -1,6 +1,5 @@
 import subprocess
 import os
-import re
 import sys
 
 def ensure_module_installed(module_name, package=None):
@@ -33,20 +32,21 @@ def find_or_download_selenium_server(target_directory="./selenium-server"):
             if file.endswith(".jar"):
                 return os.path.join(target_directory, file)
 
-    print("Downloading latest Selenium server...")
+    print("Downloading latest Selenium server. Please wait, it may take a few minutes...")
     response = requests.get("https://github.com/SeleniumHQ/selenium/releases/latest")
     latest_version = response.url.split('/')[-1].replace('selenium-', '')
     download_url = f"https://github.com/SeleniumHQ/selenium/releases/download/selenium-{latest_version}/selenium-server-{latest_version}.jar"
     os.makedirs(target_directory, exist_ok=True)
-    local_file_path = os.path.join(target_directory, f"selenium-server-{latest_version}.jar")
+    file_name = f"selenium-server-{latest_version}.jar"
+    local_file_path = os.path.join(target_directory, file_name)
     response = requests.get(download_url)
     if response.status_code == 200:
         with open(local_file_path, 'wb') as file:
             file.write(response.content)
+        print("Successfully downloaded", file_name)
         return local_file_path
     else:
-        print("Failed to download the latest Selenium server.")
-        sys.exit(1)
+        sys.exit("Failed to download the latest Selenium server.")
 
 def load_configuration():
     """Load configuration from 'config.toml', exiting if not found or invalid."""
@@ -73,6 +73,7 @@ def main():
     if is_port_in_use(port):
         sys.exit(f"Port {port} is already in use.")
 
+    print("Starting Selenium server...")
     params = ["java", "-jar", server_path, "standalone"] + [param for item in config.items() for param in ("--" + item[0].lower(), str(item[1]).lower())]
     subprocess.run(params)
 
