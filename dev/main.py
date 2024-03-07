@@ -21,7 +21,7 @@ def find_selenium_server_jar():
     for file in os.listdir('.'):
         if re.match(r'selenium-server-\d+\.\d+\.\d+\.jar', file):
             return file
-    print("No Selenium server JAR file found in the directory. The program will not start.")
+    print("No Selenium server JAR file found in the directory.")
     sys.exit(1)
 
 def load_params():
@@ -37,7 +37,7 @@ def load_params():
 def check_port_in_use(port):
     result = subprocess.run(["netstat", "-aon"], capture_output=True, text=True)
     if f":{port}" in result.stdout:
-        print(f"Port {port} is already in use. The program will not start.")
+        print(f"Port {port} is already in use.")
         sys.exit(1)
 
 def main():
