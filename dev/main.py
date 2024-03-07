@@ -7,6 +7,7 @@ import sys
 try:
     import toml
 except ImportError:
+    print("Installing toml...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "toml"])
     import toml  # Ensure toml is imported after installation
 
