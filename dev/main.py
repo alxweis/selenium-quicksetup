@@ -49,13 +49,13 @@ def find_or_download_selenium_server(target_directory="./selenium-server"):
         sys.exit(1)
 
 def load_configuration():
-    """Load configuration from 'params.toml', exiting if not found or invalid."""
+    """Load configuration from 'config.toml', exiting if not found or invalid."""
     try:
-        return toml.load('params.toml')
+        return toml.load('config.toml')
     except FileNotFoundError:
-        sys.exit("params.toml not found.")
+        sys.exit("config.toml not found.")
     except toml.TomlDecodeError:
-        sys.exit("Error parsing params.toml.")
+        sys.exit("Error parsing config.toml.")
 
 def is_port_in_use(port):
     """Check if the specified port is already in use."""
