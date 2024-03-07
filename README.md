@@ -6,12 +6,12 @@ Ensure your system meets the following before proceeding:
 - **Java (JDK or JRE) 8+**: Critical for running the Selenium server. Check using `java -version`.
 - **Available Port**: The port specified in `params.toml` (default is 4444) must be open and not in use.
 
-# Setup Instructions
+# Setup Guide
 
-To prepare your environment for the Selenium server:
+For setting up your Selenium server environment, follow these steps:
 
-- **Download Selenium Server JAR**: Fetch the `selenium-server-<version>.jar` from [Selenium Releases](https://github.com/SeleniumHQ/selenium/releases) and save it in this directory.
-- **Configure `params.toml`**: Populate `params.toml` with necessary parameters for your Selenium Server setup, as documented in [CLI Options](https://www.selenium.dev/documentation/grid/configuration/cli_options/#distributor).
+- **Selenium Server JAR**: Optionally, manually download a `selenium-server-<version>.jar` from [Selenium Releases](https://github.com/SeleniumHQ/selenium/releases) and place it in `./selenium-server`. If not found, the script auto-downloads the latest version.
+- **Configure Parameters**: Fill in `params.toml` with required parameters for Selenium Server, as detailed in [CLI Options](https://www.selenium.dev/documentation/grid/configuration/cli_options/#distributor).
 
 # Starting the Selenium Server
 

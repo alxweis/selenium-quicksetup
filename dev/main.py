@@ -3,56 +3,78 @@ import os
 import re
 import sys
 
-# Attempt to import the toml module, installing it if necessary
-try:
-    import toml
-except ImportError:
-    print("Installing toml...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "toml"])
-    import toml  # Ensure toml is imported after installation
+def ensure_module_installed(module_name, package=None):
+    """Ensure a Python module is installed, installing it if necessary."""
+    try:
+        return __import__(module_name)
+    except ImportError:
+        package = package or module_name
+        print(f"Installing {package}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        return __import__(module_name)
 
-def check_java_installed():
+# Ensure necessary modules are installed and import them
+toml = ensure_module_installed('toml')
+requests = ensure_module_installed('requests')
+BeautifulSoup = ensure_module_installed('bs4', 'beautifulsoup4').BeautifulSoup
+
+def is_java_installed():
+    """Check if Java is installed and in the PATH."""
     try:
         subprocess.check_output(["java", "-version"], stderr=subprocess.STDOUT)
+        return True
     except FileNotFoundError:
-        print("Java is not installed or not in PATH. Please install Java and ensure it is in the PATH.")
+        return False
+
+def find_or_download_selenium_server(target_directory="./selenium-server"):
+    """Find or download the latest Selenium server jar file."""
+    if os.path.exists(target_directory):
+        for file in os.listdir(target_directory):
+            if file.endswith(".jar"):
+                return os.path.join(target_directory, file)
+
+    print("Downloading latest Selenium server...")
+    response = requests.get("https://github.com/SeleniumHQ/selenium/releases/latest")
+    latest_version = response.url.split('/')[-1].replace('selenium-', '')
+    download_url = f"https://github.com/SeleniumHQ/selenium/releases/download/selenium-{latest_version}/selenium-server-{latest_version}.jar"
+    os.makedirs(target_directory, exist_ok=True)
+    local_file_path = os.path.join(target_directory, f"selenium-server-{latest_version}.jar")
+    response = requests.get(download_url)
+    if response.status_code == 200:
+        with open(local_file_path, 'wb') as file:
+            file.write(response.content)
+        return local_file_path
+    else:
+        print("Failed to download the latest Selenium server.")
         sys.exit(1)
 
-def find_selenium_server_jar():
-    for file in os.listdir('.'):
-        if re.match(r'selenium-server-\d+\.\d+\.\d+\.jar', file):
-            return file
-    print("No Selenium server JAR file found in the directory.")
-    sys.exit(1)
-
-def load_params():
+def load_configuration():
+    """Load configuration from 'params.toml', exiting if not found or invalid."""
     try:
         return toml.load('params.toml')
     except FileNotFoundError:
-        print("params.toml not found.")
-        sys.exit(1)
+        sys.exit("params.toml not found.")
     except toml.TomlDecodeError:
-        print("Error parsing params.toml.")
-        sys.exit(1)
+        sys.exit("Error parsing params.toml.")
 
-def check_port_in_use(port):
+def is_port_in_use(port):
+    """Check if the specified port is already in use."""
     result = subprocess.run(["netstat", "-aon"], capture_output=True, text=True)
-    if f":{port}" in result.stdout:
-        print(f"Port {port} is already in use.")
-        sys.exit(1)
+    return f":{port}" in result.stdout
 
 def main():
-    check_java_installed()
+    if not is_java_installed():
+        sys.exit("Java is not installed or not in PATH. Please install Java and ensure it is in PATH.")
 
-    server = find_selenium_server_jar()
-    param_dict = load_params()
-    param_list = []
-    for key, value in param_dict.items():
-        param_list.append("--" + key.lower())
-        param_list.append(str(value).lower())
-    check_port_in_use(param_dict.get("port", 4444))
+    server_path = find_or_download_selenium_server()
+    config = load_configuration()
 
-    subprocess.run(["java", "-jar", server, "standalone"] + param_list)
+    port = config.get("port", 4444)
+    if is_port_in_use(port):
+        sys.exit(f"Port {port} is already in use.")
+
+    params = ["java", "-jar", server_path, "standalone"] + [param for item in config.items() for param in ("--" + item[0].lower(), str(item[1]).lower())]
+    subprocess.run(params)
 
 if __name__ == "__main__":
     main()
