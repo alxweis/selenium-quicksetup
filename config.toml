@@ -1,3 +1,6 @@
-selenium-manager = true
+[server]
 port = 4444
-max-sessions = 8
+
+[node]
+selenium-manager = true
+max-sessions = 3
