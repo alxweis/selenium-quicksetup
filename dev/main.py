@@ -65,18 +65,30 @@ def is_version_smaller(v1, v2):
     
     return False
 
+def get_max_version_file(files):
+    max_file = None
+    max_version = None
+    for file, version in files.items():
+        if max_version is None or is_version_smaller(max_version, version):
+            max_version = version
+            max_file = file
+    return max_file
+
 def find_or_download_selenium_server():
     """Find or download the latest Selenium server jar file."""
     latest_version = get_latest_version()
 
-    if os.path.exists(server_directory):
-        for file in os.listdir(server_directory):
-            if file.endswith(".jar"):
-                version = get_version_from_file(file)
-                tprint("Found Selenium server", file)
-                if is_version_smaller(version, latest_version):
-                    tprint(f"Your current Selenium version is {version}, however, latest version {latest_version} is now available", t=PrintType.WARN)
-                return file
+    files = {}
+    for f in os.listdir(server_directory):
+        if f.endswith(".jar"):
+            files[f] = get_version_from_file(f)
+
+    if len(files) > 0 and os.path.exists(server_directory):
+        file = get_max_version_file(files)
+        version = get_version_from_file(file)
+        if is_version_smaller(version, latest_version):
+            tprint(f"Your current Selenium version is {version}, however, latest version {latest_version} is now available", t=PrintType.WARN)
+        return file
     return download_selenium_server()
 
 def download_selenium_server():
